@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class Wordle</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121213;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .game { text-align: center; max-width: 420px; }
+    .board {
+      display: grid;
+      gap: 8px;
+      margin: 20px auto;
+      justify-content: center;
+    }
+    .tile {
+      width: 50px;
+      height: 50px;
+      border: 2px solid #3a3a3c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .correct { background: #538d4e; border-color: #538d4e; }
+    .present { background: #b59f3b; border-color: #b59f3b; }
+    .absent { background: #3a3a3c; border-color: #3a3a3c; }
+    input, select {
+      font-size: 1.1rem;
+      padding: 8px;
+      width: 220px;
+      text-transform: uppercase;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .definition {
+      margin-top: 15px;
+      background: #1f1f22;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <h1>Class Wordle</h1>
+
+    <select id="weekSelect" onchange="startGame()"></select>
+    <p id="info"></p>
+
+    <div id="board" class="board"></div>
+
+    <div>
+      <input id="guessInput" />
+      <button onclick="submitGuess()">Guess</button>
+    </div>
+
+    <p id="message"></p>
+    <div id="definition" class="definition" style="display:none"></div>
+  </div>
+
+  <script>
+    /* ======================================
+       WEEKLY WORD SETS (EDIT PER CLASS)
+       ====================================== */
+    const WEEKLY_WORDS = {
+      "Week 1: Foundations": [
+        { word: "culture", def: "Shared values, beliefs, and practices of a group." },
+        { word: "identity", def: "How individuals see themselves in relation to groups." },
+        { word: "norms", def: "Expected rules of behavior within a group." }
+      ],
+      "Week 2: Persuasion": [
+        { word: "ethos", def: "Credibility or ethical appeal of a speaker." },
+        { word: "logos", def: "Logical reasoning and evidence used in persuasion." },
+        { word: "pathos", def: "Emotional appeal used to influence an audience." }
+      ],
+      "Week 3: Interaction": [
+        { word: "feedback", def: "Responses that indicate how a message is received." },
+        { word: "listening", def: "The active process of receiving and interpreting messages." },
+        { word: "conflict", def: "Perceived incompatibility of goals or values." }
+      ]
+    };
+
+    const MAX_GUESSES = 6;
+
+    let answer = "";
+    let definition = "";
+    let wordLength = 0;
+    let currentRow = 0;
+    let gameOver = false;
+
+    function populateWeeks() {
+      const select = document.getElementById('weekSelect');
+      select.innerHTML = '';
+      Object.keys(WEEKLY_WORDS).forEach(week => {
+        const option = document.createElement('option');
+        option.value = week;
+        option.textContent = week;
+        select.appendChild(option);
+      });
+    }
+
+    function startGame() {
+      const week = document.getElementById('weekSelect').value;
+      const list = WEEKLY_WORDS[week];
+      const chosen = list[Math.floor(Math.random() * list.length)];
+
+      answer = chosen.word.toUpperCase();
+      definition = chosen.def;
+      wordLength = answer.length;
+      currentRow = 0;
+      gameOver = false;
+
+      document.getElementById('info').textContent = `Word length: ${wordLength}`;
+      document.getElementById('guessInput').maxLength = wordLength;
+      document.getElementById('guessInput').value = '';
+      document.getElementById('message').textContent = '';
+      document.getElementById('definition').style.display = 'none';
+
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      board.style.gridTemplateColumns = `repeat(${wordLength}, 50px)`;
+
+      for (let i = 0; i < MAX_GUESSES * wordLength; i++) {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        board.appendChild(tile);
+      }
+    }
+
+    function endGame(win) {
+      gameOver = true;
+      const msg = win ? 'Correct!' : `Out of guesses! Word was: ${answer}`;
+      document.getElementById('message').textContent = msg;
+      const defBox = document.getElementById('definition');
+      defBox.innerHTML = `<strong>Definition:</strong> ${definition}`;
+      defBox.style.display = 'block';
+    }
+
+    function submitGuess() {
+      if (gameOver) return;
+
+      const input = document.getElementById('guessInput');
+      let guess = input.value.toUpperCase();
+
+      if (guess.length !== wordLength) {
+        alert(`Guess must be ${wordLength} letters.`);
+        return;
+      }
+
+      const tiles = document.querySelectorAll('.tile');
+      const startIndex = currentRow * wordLength;
+
+      for (let i = 0; i < wordLength; i++) {
+        const tile = tiles[startIndex + i];
+        tile.textContent = guess[i];
+
+        if (guess[i] === answer[i]) {
+          tile.classList.add('correct');
+        } else if (answer.includes(guess[i])) {
+          tile.classList.add('present');
+        } else {
+          tile.classList.add('absent');
+        }
+      }
+
+      if (guess === answer) {
+        endGame(true);
+        return;
+      }
+
+      currentRow++;
+      input.value = '';
+
+      if (currentRow === MAX_GUESSES) {
+        endGame(false);
+      }
+    }
+
+    populateWeeks();
+    startGame();
+  </script>
+</body>
+</html>
