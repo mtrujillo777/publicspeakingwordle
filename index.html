@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mr. Trujillo's Weekly Public Speaking Wordle</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,16 +13,38 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
     }
-    .game { text-align: center; max-width: 460px; }
+
+    .game {
+      text-align: center;
+      max-width: 460px;
+      width: 100%;
+      padding: 10px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .instructions {
+      font-size: 0.9rem;
+      text-align: left;
+      background: #1f1f22;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
     .board {
       display: grid;
       gap: 8px;
       margin: 20px auto;
       justify-content: center;
     }
+
     .tile {
       width: 50px;
       height: 50px;
@@ -33,21 +56,26 @@
       font-weight: bold;
       text-transform: uppercase;
     }
+
     .correct { background: #538d4e; border-color: #538d4e; }
     .present { background: #b59f3b; border-color: #b59f3b; }
-    .absent { background: #3a3a3c; border-color: #3a3a3c; }
-    input, select {
+    .absent  { background: #3a3a3c; border-color: #3a3a3c; }
+
+    select, input {
       font-size: 1.05rem;
       padding: 8px;
-      width: 240px;
+      width: 100%;
+      margin-bottom: 6px;
       text-transform: uppercase;
     }
+
     button {
-      margin-top: 10px;
-      padding: 8px 14px;
+      width: 100%;
+      padding: 8px;
       font-size: 1rem;
       cursor: pointer;
     }
+
     .definition {
       margin-top: 15px;
       background: #1f1f22;
@@ -55,17 +83,43 @@
       border-radius: 6px;
       font-size: 0.95rem;
       text-align: left;
+      display: none;
     }
-    .instructions {
-      font-size: 0.9rem;
-      text-align: left;
-      background: #1f1f22;
-      padding: 12px;
-      border-radius: 6px;
-      margin-top: 10px;
+
+    /* ===============================
+       MOBILE RESPONSIVE (iPhone)
+       =============================== */
+    @media (max-width: 480px) {
+      body {
+        align-items: flex-start;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+      }
+
+      .instructions {
+        font-size: 0.8rem;
+        padding: 8px;
+      }
+
+      .board {
+        gap: 6px;
+      }
+
+      .tile {
+        width: 38px;
+        height: 38px;
+        font-size: 1.1rem;
+      }
+
+      .definition {
+        font-size: 0.85rem;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="game">
     <h1>Mr. Trujillo's Weekly Public Speaking Wordle</h1>
@@ -73,39 +127,28 @@
     <div class="instructions">
       <strong>Instructions:</strong>
       <ul>
-        <li>Select the current week.</li>
+        <li>Select the week assigned in class.</li>
         <li>Guess the public speaking term in <strong>6 tries</strong>.</li>
         <li>Green = correct letter & position.</li>
         <li>Yellow = correct letter, wrong position.</li>
         <li>Gray = letter not in the word.</li>
-        <li>After the game ends, read the definition to reinforce the concept.</li>
+        <li>A definition will appear after the game ends.</li>
       </ul>
     </div>
 
-    <select id="weekSelect" onchange="startGame()"></select>
+    <select id="weekSelect"></select>
     <p id="info"></p>
 
     <div id="board" class="board"></div>
 
-    <div>
-      <input id="guessInput" />
-      <button onclick="submitGuess()">Guess</button>
-    </div>
+    <input id="guessInput" />
+    <button onclick="submitGuess()">Guess</button>
 
     <p id="message"></p>
-    <div id="definition" class="definition" style="display:none"></div>
+    <div id="definition" class="definition"></div>
   </div>
 
   <script>
-    /* ======================================
-       INSTRUCTOR CONTROL
-       Set the current available week here
-       ====================================== */
-    
-
-    /* ======================================
-       PUBLIC SPEAKING – FIXED WEEKLY ANSWERS
-       ====================================== */
     const WEEKLY_WORDS = {
       1: { word: "symbol", def: "A word, sound, or visual that represents something else and carries shared meaning." },
       2: { word: "beliefs", def: "Convictions or acceptances that something is true or real, often shaping attitudes and behavior." },
@@ -126,7 +169,6 @@
     };
 
     const MAX_GUESSES = 6;
-
     let answer = "";
     let definition = "";
     let wordLength = 0;
@@ -134,10 +176,9 @@
     let gameOver = false;
 
     function populateWeeks() {
-      const select = document.getElementById('weekSelect');
-      select.innerHTML = '';
+      const select = document.getElementById("weekSelect");
       for (let i = 1; i <= 16; i++) {
-        const option = document.createElement('option');
+        const option = document.createElement("option");
         option.value = i;
         option.textContent = `Week ${i}`;
         select.appendChild(option);
@@ -145,7 +186,7 @@
     }
 
     function startGame() {
-      const week = document.getElementById('weekSelect').value;
+      const week = document.getElementById("weekSelect").value;
       const chosen = WEEKLY_WORDS[week];
 
       answer = chosen.word.toUpperCase();
@@ -154,74 +195,66 @@
       currentRow = 0;
       gameOver = false;
 
-      document.getElementById('info').textContent = `Word length: ${wordLength}`;
-      document.getElementById('guessInput').maxLength = wordLength;
-      document.getElementById('guessInput').value = '';
-      document.getElementById('message').textContent = '';
-      document.getElementById('definition').style.display = 'none';
+      document.getElementById("info").textContent = `Word length: ${wordLength}`;
+      document.getElementById("guessInput").maxLength = wordLength;
+      document.getElementById("guessInput").value = "";
+      document.getElementById("message").textContent = "";
+      document.getElementById("definition").style.display = "none";
 
-      const board = document.getElementById('board');
-      board.innerHTML = '';
-      board.style.gridTemplateColumns = `repeat(${wordLength}, 50px)`;
+      const board = document.getElementById("board");
+      board.innerHTML = "";
+      board.style.gridTemplateColumns = `repeat(${wordLength}, 1fr)`;
 
       for (let i = 0; i < MAX_GUESSES * wordLength; i++) {
-        const tile = document.createElement('div');
-        tile.className = 'tile';
+        const tile = document.createElement("div");
+        tile.className = "tile";
         board.appendChild(tile);
       }
     }
 
     function endGame(win) {
       gameOver = true;
-      const msg = win ? 'Correct!' : `Out of guesses! Word was: ${answer}`;
-      document.getElementById('message').textContent = msg;
-      const defBox = document.getElementById('definition');
+      document.getElementById("message").textContent =
+        win ? "Correct!" : `Out of guesses! Word was: ${answer}`;
+      const defBox = document.getElementById("definition");
       defBox.innerHTML = `<strong>Definition:</strong> ${definition}`;
-      defBox.style.display = 'block';
+      defBox.style.display = "block";
     }
 
     function submitGuess() {
       if (gameOver) return;
 
-      const input = document.getElementById('guessInput');
-      let guess = input.value.toUpperCase();
+      const input = document.getElementById("guessInput");
+      const guess = input.value.toUpperCase();
 
       if (guess.length !== wordLength) {
         alert(`Guess must be ${wordLength} letters.`);
         return;
       }
 
-      const tiles = document.querySelectorAll('.tile');
+      const tiles = document.querySelectorAll(".tile");
       const startIndex = currentRow * wordLength;
 
       for (let i = 0; i < wordLength; i++) {
         const tile = tiles[startIndex + i];
         tile.textContent = guess[i];
 
-        if (guess[i] === answer[i]) {
-          tile.classList.add('correct');
-        } else if (answer.includes(guess[i])) {
-          tile.classList.add('present');
-        } else {
-          tile.classList.add('absent');
-        }
+        if (guess[i] === answer[i]) tile.classList.add("correct");
+        else if (answer.includes(guess[i])) tile.classList.add("present");
+        else tile.classList.add("absent");
       }
 
-      if (guess === answer) {
-        endGame(true);
-        return;
-      }
+      if (guess === answer) return endGame(true);
 
       currentRow++;
-      input.value = '';
+      input.value = "";
 
-      if (currentRow === MAX_GUESSES) {
-        endGame(false);
-      }
+      if (currentRow === MAX_GUESSES) endGame(false);
     }
 
     populateWeeks();
     startGame();
+    document.getElementById("weekSelect").addEventListener("change", startGame);
   </script>
 </body>
 </html>
