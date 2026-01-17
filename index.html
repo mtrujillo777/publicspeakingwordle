@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Class Wordle</title>
+  <title>Mr. Trujillo's Weekly Public Speaking Wordle</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,7 +15,7 @@
       height: 100vh;
       margin: 0;
     }
-    .game { text-align: center; max-width: 420px; }
+    .game { text-align: center; max-width: 460px; }
     .board {
       display: grid;
       gap: 8px;
@@ -37,9 +37,9 @@
     .present { background: #b59f3b; border-color: #b59f3b; }
     .absent { background: #3a3a3c; border-color: #3a3a3c; }
     input, select {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       padding: 8px;
-      width: 220px;
+      width: 240px;
       text-transform: uppercase;
     }
     button {
@@ -54,12 +54,33 @@
       padding: 12px;
       border-radius: 6px;
       font-size: 0.95rem;
+      text-align: left;
+    }
+    .instructions {
+      font-size: 0.9rem;
+      text-align: left;
+      background: #1f1f22;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="game">
-    <h1>Class Wordle</h1>
+    <h1>Mr. Trujillo's Weekly Public Speaking Wordle</h1>
+
+    <div class="instructions">
+      <strong>Instructions:</strong>
+      <ul>
+        <li>Select the current week.</li>
+        <li>Guess the public speaking term in <strong>6 tries</strong>.</li>
+        <li>Green = correct letter & position.</li>
+        <li>Yellow = correct letter, wrong position.</li>
+        <li>Gray = letter not in the word.</li>
+        <li>After the game ends, read the definition to reinforce the concept.</li>
+      </ul>
+    </div>
 
     <select id="weekSelect" onchange="startGame()"></select>
     <p id="info"></p>
@@ -77,24 +98,31 @@
 
   <script>
     /* ======================================
-       WEEKLY WORD SETS (EDIT PER CLASS)
+       INSTRUCTOR CONTROL
+       Set the current available week here
+       ====================================== */
+    
+
+    /* ======================================
+       PUBLIC SPEAKING – FIXED WEEKLY ANSWERS
        ====================================== */
     const WEEKLY_WORDS = {
-      "Week 1: Foundations": [
-        { word: "culture", def: "Shared values, beliefs, and practices of a group." },
-        { word: "identity", def: "How individuals see themselves in relation to groups." },
-        { word: "norms", def: "Expected rules of behavior within a group." }
-      ],
-      "Week 2: Persuasion": [
-        { word: "ethos", def: "Credibility or ethical appeal of a speaker." },
-        { word: "logos", def: "Logical reasoning and evidence used in persuasion." },
-        { word: "pathos", def: "Emotional appeal used to influence an audience." }
-      ],
-      "Week 3: Interaction": [
-        { word: "feedback", def: "Responses that indicate how a message is received." },
-        { word: "listening", def: "The active process of receiving and interpreting messages." },
-        { word: "conflict", def: "Perceived incompatibility of goals or values." }
-      ]
+      1: { word: "symbol", def: "A word, sound, or visual that represents something else and carries shared meaning." },
+      2: { word: "beliefs", def: "Convictions or acceptances that something is true or real, often shaping attitudes and behavior." },
+      3: { word: "audience", def: "The group of listeners or viewers a speaker is addressing." },
+      4: { word: "periodicals", def: "Sources such as magazines or journals that are published regularly." },
+      5: { word: "transitions", def: "Words or phrases that help move smoothly from one idea to the next in a speech." },
+      6: { word: "conclusion", def: "The final part of a speech that summarizes key points and provides closure." },
+      7: { word: "statistics", def: "Numerical data used to support claims or illustrate patterns." },
+      8: { word: "proposition", def: "A statement that clearly defines what the speaker is attempting to prove or persuade." },
+      9: { word: "impromptu", def: "A speech delivered with little or no advance preparation." },
+      10:{ word: "syllogism", def: "A form of logical reasoning in which a conclusion is drawn from two premises." },
+      11:{ word: "hyperbole", def: "An exaggerated statement not meant to be taken literally, used for emphasis." },
+      12:{ word: "ethos", def: "The credibility or character of the speaker as perceived by the audience." },
+      13:{ word: "persuasion", def: "The process of influencing attitudes, beliefs, or actions through communication." },
+      14:{ word: "conclusion", def: "The closing section of a speech that reinforces the message and leaves a lasting impression." },
+      15:{ word: "toast", def: "A brief speech given to honor or celebrate a person, event, or idea." },
+      16:{ word: "adapt", def: "To adjust a message or delivery style to better suit the audience or situation." }
     };
 
     const MAX_GUESSES = 6;
@@ -108,18 +136,17 @@
     function populateWeeks() {
       const select = document.getElementById('weekSelect');
       select.innerHTML = '';
-      Object.keys(WEEKLY_WORDS).forEach(week => {
+      for (let i = 1; i <= 16; i++) {
         const option = document.createElement('option');
-        option.value = week;
-        option.textContent = week;
+        option.value = i;
+        option.textContent = `Week ${i}`;
         select.appendChild(option);
-      });
+      }
     }
 
     function startGame() {
       const week = document.getElementById('weekSelect').value;
-      const list = WEEKLY_WORDS[week];
-      const chosen = list[Math.floor(Math.random() * list.length)];
+      const chosen = WEEKLY_WORDS[week];
 
       answer = chosen.word.toUpperCase();
       definition = chosen.def;
